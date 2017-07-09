@@ -4,8 +4,10 @@ Collection of scripts designed for the purpose of crypto currency analysis, tren
 ------
 ## Crypto Logger
 This program scrapes crypto data using the coinmarketcap api, then sends it to a mysql database. 
-[[https://github.com/needmorecowbell/CryptoScripts/cryptoLogger/cryptoLoggerOutput.png|alt=CryptoLoggerOutput]]
+![Alt text](/cryptoLogger/cryptoLoggerOutput.png)
+
 *To Do*
+
   * Config file for choice in currency logging
   * Decide whether it should be a script that runs on cron, or does scheduling by itself
 ------
