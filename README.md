@@ -4,6 +4,7 @@ Collection of scripts designed for the purpose of crypto currency analysis, tren
 ------
 ## Crypto Logger
 This program scrapes crypto data using the coinmarketcap api, then sends it to a mysql database. 
+
 ![Alt text](/cryptoLogger/cryptoLoggerOutput.png)
 
 *To Do*
