@@ -40,9 +40,15 @@ usdAmount=0.0
 
 balanceSatoshi=""
 
-requestUSDConversion='https://blockchain.info/tobtc?currency=USD&value='
+total_in_fiat= 0.0
+
+
 requestBalanceSatoshi="https://blockchain.info/q/addressbalance/"
 requestAddress="https://blockchain.info/ticker"
+
+
+
+requestCurrencyConversion='https://api.coinmarketcap.com/v1/ticker/{var[crypto]}/?convert={var[fiat]}'
 
 conversionJSON= requests.get(requestAddress).json()
 btc2USD= conversionJSON["USD"]["buy"]
@@ -65,8 +71,17 @@ reqData = {"ether_addr": eth_addr,
            "key":key
            }
 eth_balance = float(requests.get(ether_balance_url.format(var=reqData)).json()['result'])/etherscan_ratio
-print("Smybol: ETH\t"+str(eth_balance)+" Coins")
 
+convData = {"crypto":"ethereum",
+            "fiat":"USD"
+            }
+
+usd_per_eth= float(requests.get(requestCurrencyConversion.format(var=convData)).json()[0]['price_usd'])
+eth_bal_in_fiat = eth_balance*usd_per_eth
+
+print("Crypto: Ethereum ($"+str(usd_per_eth)+")\t"+str(eth_balance)+" Coins\t$"+str(eth_bal_in_fiat))
+
+total_in_fiat+=eth_bal_in_fiat
 
 
 # Tokens
@@ -77,17 +92,34 @@ for name, contract_addr in tokens.items():
               "key": key
               }
     token_balance= float(requests.get(ether_token_url.format(var= reqData)).json()['result'])/etherscan_ratio
-    print("Symbol: "+ name.upper() +"\t"+str(token_balance)+" Tokens")
+
+    convData = {"crypto":name,
+                "fiat":"USD"
+                }
+
+    usd_per_token= float(requests.get(requestCurrencyConversion.format(var=convData)).json()[0]['price_usd'])
+    token_bal_in_fiat = token_balance*usd_per_token
+    print("Crypto: "+ name +"($"+str(usd_per_token)+")\t"+str(token_balance)+" Tokens\t$"+str(token_bal_in_fiat))
+
+    total_in_fiat+=token_bal_in_fiat
 
 
 
 # BTC
 print("[+] Getting BTC Data:")
 balanceSatoshi =requests.get(requestBalanceSatoshi+btc_address)
+btc_balance= float(balanceSatoshi.content) / 100000000.0
 
-btcAmount= float(balanceSatoshi.content) / 100000000.0
-usdAmount= float(btc2USD*btcAmount)
-print("Symbol: BTC\t"+str(btcAmount)+" Coins")
+convData = {"crypto":"bitcoin",
+            "fiat":"USD"
+            }
+
+
+usd_per_btc= float(requests.get(requestCurrencyConversion.format(var=convData)).json()[0]['price_usd'])
+ 
+btc_bal_in_fiat= usd_per_btc * btc_balance
+print("Crypto: bitcoin($"+str(usd_per_btc)+")\t"+str(btc_balance)+" Tokens\t$"+str(btc_bal_in_fiat))
+
 
 
 #NEO
@@ -102,10 +134,22 @@ neo_balances_div= soup.find(class_='balance-list')# find section with wallet  ba
 neo_balances_div=str(neo_balances_div.findAll('strong')[1].contents)# get 'strong' text of balance list ul
 neo_balance= re.findall('\d+',neo_balances_div)# find all digits in contents using regex
 
-print("Symbol: NEO\t"+"".join(neo_balance)+" Coins")
+
+#now that we found the balance, lets get the amount in USD...
+
+convData = {"crypto":"neo",
+            "fiat":"USD"
+            }
+
+usd_per_neo= float(requests.get(requestCurrencyConversion.format(var=convData)).json()[0]['price_usd'])
+neo_bal_in_fiat = float("".join(neo_balance))*usd_per_neo
+
+print("Crypto: neo ($"+str(usd_per_neo)+")\t"+str(token_balance)+" Tokens\t$"+str(neo_bal_in_fiat))
+
+total_in_fiat+=neo_bal_in_fiat
 
 
-
+print("Total Balance in Fiat: $"+str(total_in_fiat))
 
 # DB INSERT
 timestamp="{:%c}".format(datetime.now())
