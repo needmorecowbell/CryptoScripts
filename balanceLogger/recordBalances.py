@@ -16,7 +16,7 @@ from bs4 import BeautifulSoup
 
 class BalanceLogger():
     """Docstring for BalanceLogger. """
-    key ="" 
+    key ="" #etherscan api key 
     dbPass= ""
     dbUser= ""
     dbHost= ""
@@ -25,12 +25,8 @@ class BalanceLogger():
     eth_addr=""
     btc_address= ""
     neo_address= ""
-
     etherscan_ratio= 1000000000000000000
 
-    btcAmount=0.0
-    usdAmount=0.0
-    balanceSatoshi=0
     total_in_fiat= 0.0
     
     requestCurrencyConversion='https://api.coinmarketcap.com/v1/ticker/{var[crypto]}/?convert={var[fiat]}'
@@ -85,9 +81,15 @@ class BalanceLogger():
         usd_per_eth= float(requests.get(self.requestCurrencyConversion.format(var=convData)).json()[0]['price_usd'])
         eth_bal_in_fiat = eth_balance*usd_per_eth
 
-        print("\tCrypto: Ethereum ($"+str(usd_per_eth)+")\t"+str(eth_balance)+" Coins\t$"+str(eth_bal_in_fiat))
-
         self.total_in_fiat+=eth_bal_in_fiat
+
+
+        print("\tCrypto: ethereum ($"+str(usd_per_eth)+")")
+        print("\t\tBalance: "+str(eth_balance)+" Coins")
+        print("\t\tBalance (USD): $"+str(eth_bal_in_fiat))
+        print("")
+
+        return {str(eth_balance):"$"+str(eth_bal_in_fiat)}#returns dict of balances fiat/coin
 
 
 
@@ -117,8 +119,15 @@ class BalanceLogger():
         usd_per_btc= float(requests.get(self.requestCurrencyConversion.format(var=convData)).json()[0]['price_usd'])
          
         btc_bal_in_fiat= usd_per_btc * btc_balance
-        print("\tCrypto: bitcoin($"+str(usd_per_btc)+")\t"+str(btc_balance)+" Tokens\t$"+str(btc_bal_in_fiat))
         self.total_in_fiat+=btc_bal_in_fiat
+
+        print("\tCrypto: bitcoin ($"+str(usd_per_btc)+")")
+        print("\t\tBalance: "+str(btc_balance)+" Tokens")
+        print("\t\tBalance (USD): $"+str(btc_bal_in_fiat))
+        print("")
+
+        return {str(btc_balance):"$"+str(btc_bal_in_fiat)}#returns dict of balances fiat/coin
+
 
 
 
@@ -131,7 +140,8 @@ class BalanceLogger():
                                   "&contractaddress={var[contract_address]}"
                                   "&apikey={var[key]}")
 
-
+        resultBalances={}
+        resultTokens={}
         print("[+] Getting Token Data:")
         for name, contract_addr in self.tokens.items():
             reqData ={"ether_addr": self.eth_addr,
@@ -146,9 +156,23 @@ class BalanceLogger():
 
             usd_per_token= float(requests.get(self.requestCurrencyConversion.format(var=convData)).json()[0]['price_usd'])
             token_bal_in_fiat = token_balance*usd_per_token
-            print("\tCrypto: "+ name +"($"+str(usd_per_token)+")\t"+str(token_balance)+" Tokens\t$"+str(token_bal_in_fiat))
 
             self.total_in_fiat+=token_bal_in_fiat
+
+
+            print("\tCrypto: "+ name  + " ($"+str(usd_per_token)+")")
+            print("\t\tBalance: "+str(token_balance)+" Tokens")
+            print("\t\tBalance (USD): $"+str(token_bal_in_fiat))
+            print("")
+
+
+        
+        
+            resultBalance = {str(token_balance):"$"+str(token_bal_in_fiat)}#adds to dict of balance fiat/usd
+            
+            resultTokens.update( {name:resultBalance})
+        
+        return resultTokens #returns all checked tokens in a dict
 
 
 
@@ -156,7 +180,9 @@ class BalanceLogger():
 
 
     def getNEO(self):
-        """TODO: Docstring for getTokens"""
+        """TODO: Docstring for getTokens
+            returns: dict (balance:balanceFiat)
+        """
         print("[+] Getting NEO Data: ")
         requestBalanceNEO= 'https://neoexplorer.co/addresses/'+self.neo_address
 
@@ -178,9 +204,16 @@ class BalanceLogger():
         usd_per_neo= float(requests.get(self.requestCurrencyConversion.format(var=convData)).json()[0]['price_usd'])
         neo_bal_in_fiat = float("".join(neo_balance))*usd_per_neo
 
-        print("\tCrypto: neo ($"+str(usd_per_neo)+")\t"+"".join(neo_balance)+" Tokens\t$"+str(neo_bal_in_fiat))
-
+        print("\tCrypto: neo ($"+str(usd_per_neo)+")")
+        print("\t\tBalance: "+"".join(neo_balance)+" Tokens")
+        print("\t\tBalance (USD): $"+str(neo_bal_in_fiat))
+        print("")
         self.total_in_fiat+=neo_bal_in_fiat
+
+        return {str(neo_balance):"$"+str(neo_bal_in_fiat)}#returns dict of balances fiat/usd
+
+
+
 
     def getTotalFiat(self):
         return self.total_in_fiat
