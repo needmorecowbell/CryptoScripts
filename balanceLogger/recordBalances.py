@@ -182,16 +182,12 @@ class BalanceLogger():
 
         self.total_in_fiat+=neo_bal_in_fiat
 
+    def getTotalFiat(self):
+        return self.total_in_fiat
 
     def __init__(self):
         self.loadFiles()
-        self.getETH()
-        self.getTokens()
-        self.getBTC()
-        self.getNEO()
-        print("Total Balance in Fiat: $"+str(self.total_in_fiat))
-
-        # DB INSERT
+         # DB INSERT
         timestamp="{:%c}".format(datetime.now())
 
 #        query= "INSERT INTO balances VALUES (null, '"+btc_address+"', '"+str(btcAmount)+"', '"+str(usdAmount) +"', '"+timestamp+"');"
@@ -209,5 +205,11 @@ class BalanceLogger():
 
 
 if __name__ == "__main__":
-    b= BalanceLogger()
+    balanceLogger= BalanceLogger()
+    balanceLogger.getETH()
+    balanceLogger.getTokens()
+    balanceLogger.getBTC()
+    balanceLogger.getNEO()
+    print("Total Balance in Fiat: $"+str(balanceLogger.getTotalFiat()))
+
 
