@@ -25,16 +25,17 @@ class BalanceLogger():
     eth_addr=""
     btc_address= ""
     neo_address= ""
-    etherscan_ratio= 1000000000000000000
+    etherscan_ratio= 1000000000000000000 #divide by this to get balance formatted to standard
 
-    total_in_fiat= 0.0
-    
     requestCurrencyConversion='https://api.coinmarketcap.com/v1/ticker/{var[crypto]}/?convert={var[fiat]}'
+    total_in_fiat= 0.0
 
-    def loadFiles(self):
+
+
+    def __loadFiles(self):
         """Loads data from config.json, tokens.json, and addresses.json
         """
-        with open('config.json', mode='r') as key_file:#load all config options
+        with open('config/config.json', mode='r') as key_file:#load all config options
             config= json.load(key_file)
         
             self.key = config['key'] 
@@ -45,10 +46,10 @@ class BalanceLogger():
             self.dbHost= database_info['dbhost']
             self.dbName= database_info['dbname']
 
-        with open('tokens.json', mode='r') as token_file:#load all token options
+        with open('config/tokens.json', mode='r') as token_file:#load all token options
             self.tokens = json.load(token_file)['token']
 
-        with open('addresses.json', mode='r') as addr_file:#load all addresses
+        with open('config/addresses.json', mode='r') as addr_file:#load all addresses
             address_data= json.load(addr_file)
             self.eth_addr= address_data['eth']
             self.btc_address= address_data['btc']
@@ -219,7 +220,7 @@ class BalanceLogger():
         return self.total_in_fiat
 
     def __init__(self):
-        self.loadFiles()
+        self.__loadFiles()
          # DB INSERT
         timestamp="{:%c}".format(datetime.now())
 
