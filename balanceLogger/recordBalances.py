@@ -15,8 +15,8 @@ from bs4 import BeautifulSoup
 
 
 class BalanceLogger():
-    """Docstring for BalanceLogger. """
-    key ="" #etherscan api key 
+    """Logs balances of various crypto's public addresses """
+    key ="" #etherscan api key
     dbPass= ""
     dbUser= ""
     dbHost= ""
@@ -37,10 +37,10 @@ class BalanceLogger():
         """
         with open('config/config.json', mode='r') as key_file:#load all config options
             config= json.load(key_file)
-        
-            self.key = config['key'] 
+
+            self.key = config['key']
             database_info= config['database']
-        
+
             self.dbPass= database_info['dbpassword']
             self.dbUser= database_info['dbuser']
             self.dbHost= database_info['dbhost']
@@ -56,11 +56,10 @@ class BalanceLogger():
             self.neo_address= address_data['neo']
 
 
-    
-    def getETH(self):
-        """TODO: Docstring for getETH.
-        :returns: TODO
 
+    def getETH(self):
+        """Gets Ethereum Balance
+        :returns: Dictionary of balances (fiat:coin)
         """
         ether_balance_url=("https://api.etherscan.io/api?module=account&action=balance"
                            "&address={var[ether_addr]}"
@@ -95,10 +94,10 @@ class BalanceLogger():
 
 
     def getBTC(self):
-        """TODO: Docstring for getBTC.
-        :returns: TODO
-
+        """Gets Bitcoin Balance
+        :returns: Dictionary of balances (fiat:coin)
         """
+
         requestBalanceSatoshi="https://blockchain.info/q/addressbalance/"
         requestAddress="https://blockchain.info/ticker"
 
@@ -118,7 +117,7 @@ class BalanceLogger():
 
 
         usd_per_btc= float(requests.get(self.requestCurrencyConversion.format(var=convData)).json()[0]['price_usd'])
-         
+
         btc_bal_in_fiat= usd_per_btc * btc_balance
         self.total_in_fiat+=btc_bal_in_fiat
 
@@ -133,8 +132,9 @@ class BalanceLogger():
 
 
     def getTokens(self):
-        """TODO: Docstring for getTokens"""
-    
+        """Gets Token Balances
+        :returns: Dictionary of token balances (tokenName:(fiat:coin))
+        """
         # Tokens
         ether_token_url=("https://api.etherscan.io/api?module=account&action=tokenbalance"
                                   "&address={var[ether_addr]}&tag=latest"
@@ -167,12 +167,12 @@ class BalanceLogger():
             print("")
 
 
-        
-        
+
+
             resultBalance = {str(token_balance):"$"+str(token_bal_in_fiat)}#adds to dict of balance fiat/usd
-            
+
             resultTokens.update( {name:resultBalance})
-        
+
         return resultTokens #returns all checked tokens in a dict
 
 
@@ -181,9 +181,10 @@ class BalanceLogger():
 
 
     def getNEO(self):
-        """TODO: Docstring for getTokens
-            returns: dict (balance:balanceFiat)
+        """Gets NEO Balance
+        :returns: Dictionary of balances (fiat:coin)
         """
+        
         print("[+] Getting NEO Data: ")
         requestBalanceNEO= 'https://neoexplorer.co/addresses/'+self.neo_address
 
@@ -233,7 +234,7 @@ class BalanceLogger():
 
 #        db.commit();
 #        db.close();
-            
+
 
 
 
@@ -245,5 +246,3 @@ if __name__ == "__main__":
     balanceLogger.getBTC()
     balanceLogger.getNEO()
     print("Total Balance in Fiat: $"+str(balanceLogger.getTotalFiat()))
-
-
