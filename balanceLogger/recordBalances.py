@@ -55,7 +55,23 @@ class BalanceLogger():
             self.btc_address= address_data['btc']
             self.neo_address= address_data['neo']
 
+    def __insertSQL(self, crypto, balance, fiatBalance, address):
+        """Inserts crypto address balance into MYSQL DB, under table balances
+        :returns: rowsAffected
+        """
+        # DB
+        #print("[+] Inserting into db "+self.dbName+"...\n")
+        timestamp="{:%c}".format(datetime.now())
 
+        query= "INSERT INTO balances VALUES (null, '"+crypto+"', '"+address+"', '"+str(balance)+"', '"+str(fiatBalance) +"', '"+timestamp+"');"
+        db=_mysql.connect(host=self.dbHost, user=self.dbUser, passwd=self.dbPass, db=self.dbName)
+
+        db.query(query)
+        rowsAffected= db.store_result()
+
+        db.commit();
+        db.close();
+        return rowsAffected
 
     def getETH(self):
         """Gets Ethereum Balance
@@ -68,7 +84,7 @@ class BalanceLogger():
 
 
         #Ethereum
-        print("[+] Getting Ethereum Data:")
+        #print("[+] Getting Ethereum Data:")
         reqData = {"ether_addr": self.eth_addr,
                    "key":self.key
                    }
@@ -89,6 +105,7 @@ class BalanceLogger():
         print("\t\tBalance (USD): $"+str(eth_bal_in_fiat))
         print("")
 
+        self.__insertSQL("ethereum", eth_balance, eth_bal_in_fiat, self.eth_addr)
         return {str(eth_balance):"$"+str(eth_bal_in_fiat)}#returns dict of balances fiat/coin
 
 
@@ -107,9 +124,14 @@ class BalanceLogger():
 
 
         # BTC
-        print("[+] Getting BTC Data:")
-        balanceSatoshi =requests.get(requestBalanceSatoshi+self.btc_address)
-        btc_balance= float(balanceSatoshi.content) / 100000000.0
+        #print("[+] Getting BTC Data:")
+        try:
+            balanceSatoshi =requests.get(requestBalanceSatoshi+self.btc_address)
+            btc_balance= float(balanceSatoshi.content) / 100000000.0
+        except ValueError as e:
+            print("[-] Error With BTC Request (Possibly too many concurrent requests?)\n")
+            return {"Error":str(e)}
+
 
         convData = {"crypto":"bitcoin",
                     "fiat":"USD"
@@ -126,6 +148,7 @@ class BalanceLogger():
         print("\t\tBalance (USD): $"+str(btc_bal_in_fiat))
         print("")
 
+        self.__insertSQL("bitcoin", btc_balance, btc_bal_in_fiat, self.btc_address)
         return {str(btc_balance):"$"+str(btc_bal_in_fiat)}#returns dict of balances fiat/coin
 
 
@@ -143,7 +166,7 @@ class BalanceLogger():
 
         resultBalances={}
         resultTokens={}
-        print("[+] Getting Token Data:")
+        #print("[+] Getting Token Data:")
         for name, contract_addr in self.tokens.items():
             reqData ={"ether_addr": self.eth_addr,
                       "contract_address": contract_addr,
@@ -167,6 +190,7 @@ class BalanceLogger():
             print("")
 
 
+            self.__insertSQL(name, token_balance, token_bal_in_fiat, self.eth_addr)
 
 
             resultBalance = {str(token_balance):"$"+str(token_bal_in_fiat)}#adds to dict of balance fiat/usd
@@ -184,8 +208,8 @@ class BalanceLogger():
         """Gets NEO Balance
         :returns: Dictionary of balances (fiat:coin)
         """
-        
-        print("[+] Getting NEO Data: ")
+
+        #print("[+] Getting NEO Data: ")
         requestBalanceNEO= 'https://neoexplorer.co/addresses/'+self.neo_address
 
 
@@ -194,7 +218,7 @@ class BalanceLogger():
 
         neo_balances_div= soup.find(class_='balance-list')# find section with wallet  balances
         neo_balances_div=str(neo_balances_div.findAll('strong')[1].contents)# get 'strong' text of balance list ul
-        neo_balance= re.findall('\d+',neo_balances_div)# find all digits in contents using regex
+        neo_balance_list= re.findall('\d+',neo_balances_div)# find all digits in contents using regex
 
 
         #now that we found the balance, lets get the amount in USD...
@@ -204,16 +228,19 @@ class BalanceLogger():
                     }
 
         usd_per_neo= float(requests.get(self.requestCurrencyConversion.format(var=convData)).json()[0]['price_usd'])
-        neo_bal_in_fiat = float("".join(neo_balance))*usd_per_neo
+
+        neo_balance="".join(neo_balance_list)
+        neo_bal_in_fiat = float(neo_balance)*usd_per_neo
 
         print("\tCrypto: neo ($"+str(usd_per_neo)+")")
-        print("\t\tBalance: "+"".join(neo_balance)+" Tokens")
+        print("\t\tBalance: "+neo_balance+" Tokens")
         print("\t\tBalance (USD): $"+str(neo_bal_in_fiat))
         print("")
         self.total_in_fiat+=neo_bal_in_fiat
 
-        return {str(neo_balance):"$"+str(neo_bal_in_fiat)}#returns dict of balances fiat/usd
+        self.__insertSQL("neo", neo_balance, neo_bal_in_fiat, self.neo_address)
 
+        return {str(neo_balance):"$"+str(neo_bal_in_fiat)}#returns dict of balances fiat/usd
 
 
 
@@ -222,18 +249,7 @@ class BalanceLogger():
 
     def __init__(self):
         self.__loadFiles()
-         # DB INSERT
-        timestamp="{:%c}".format(datetime.now())
 
-#        query= "INSERT INTO balances VALUES (null, '"+btc_address+"', '"+str(btcAmount)+"', '"+str(usdAmount) +"', '"+timestamp+"');"
-#        db=_mysql.connect(host=dbHost, user=dbUser, passwd=dbPass, db=dbName)
-        #cur=db.cursor()
-
-
-        #rowsAffected= cur.execute(query)
-
-#        db.commit();
-#        db.close();
 
 
 
