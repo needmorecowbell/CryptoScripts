@@ -1,5 +1,6 @@
-#Balance Logger
+#Balance Logger #
 balanceLogger/addresses.json
 balanceLogger/config.json
 
-
+#Always remove these files #
+*.db

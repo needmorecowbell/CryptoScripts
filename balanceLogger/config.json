@@ -1,8 +1,0 @@
-{"key" : "ETHERSCAN_API_KEY_HERE",
- "database":{
-        "dbuser":"user",
-        "dbpassword":"pass",
-        "dbname":"wallet",
-        "dbhost":"localhost"
-    }
-}
