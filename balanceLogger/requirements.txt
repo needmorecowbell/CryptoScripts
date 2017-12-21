@@ -1,0 +1,3 @@
+requests==2.9.1
+mysqlclient==1.3.12
+beautifulsoup4==4.6.0
