@@ -126,4 +126,6 @@ class CryptoAnalyzer():
 
 if __name__ == "__main__":
     c = CryptoAnalyzer()
-    print(c.getAmountInRange("xenon","2017-12-21 16:00:00:00", "2017-12-21 22:30:00:00"))
+    print(c.getAmountInRange("ethereum","2017-12-21 16:00:00:00", "2017-12-23 22:30:00:00"))
+    print(c.getAmountInRange("omisego","2017-12-21 16:00:00:00", "2017-12-23 22:30:00:00"))
+    print(c.getAmountInRange("bitcoin","2017-12-21 16:00:00:00", "2017-12-23 22:30:00:00"))
