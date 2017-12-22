@@ -29,7 +29,7 @@ class CryptoAnalyzer():
     def __loadFiles(self):
         """Loads data from config.json
         """
-        with open('config/config.json', mode='r') as config_file:#load all config options
+        with open('../config/config.json', mode='r') as config_file:#load all config options
             config= json.load(config_file)
 
             plotly_info = config['plotly']
@@ -52,7 +52,9 @@ class CryptoAnalyzer():
     def getAmountInRange(self, cryptoName, lowLimDate, upLimDate):
         """Creates graphs of amount of crypto in fiat over time,saves to plotly account """
 
-        query= 'SELECT amount_usd, insertedTime FROM balances WHERE crypto = "'+cryptoName+'" ORDER BY id ASC;'
+        #query= 'SELECT amount_usd, insertedTime FROM balances WHERE crypto = "'+cryptoName+'" ORDER BY id ASC;'
+        query= 'SELECT amount_usd, insertedTime FROM balances WHERE crypto="'+cryptoName+'" AND  insertedTime BETWEEN "'+lowLimDate+'" AND "'+upLimDate+'";'
+
         db=_mysql.connect(host=self.__dbHost, user=self.__dbUser, passwd=self.__dbPass, db=self.__dbName)
 
         db.query(query)
@@ -64,7 +66,7 @@ class CryptoAnalyzer():
         for x in range(0,num_rows) :
             fetched= queryResult.fetch_row(how=1)[0]
 
-            amount.append(float(fetched["amount_usd"]))
+
 
             timestamp_split= str(fetched["insertedTime"].decode('utf-8')).split()
             date_split = timestamp_split[0].split("-")
@@ -78,14 +80,15 @@ class CryptoAnalyzer():
 
 
             time.append(datetime.datetime(year=entry_year, month = entry_month, day= entry_day, hour= entry_hour, minute= entry_minute ))
+            amount.append(float(fetched["amount_usd"]))
 
             sleep(1)
 
 
-        data= [go.Scatter(
-            x= time,
-            y= amount
-        )]
+        data= []
+
+        data.append(go.Scatter(x= time,y= amount))
+
         layout = go.Layout(title=cryptoName+" Balance Over Time",
                             xaxis = dict(
                                 range = [self.__toUnixTime(time[0]),
@@ -123,4 +126,4 @@ class CryptoAnalyzer():
 
 if __name__ == "__main__":
     c = CryptoAnalyzer()
-    print(c.getAmountInRange("xenon","12/10/2017", "12/25/2017"))
+    print(c.getAmountInRange("xenon","2017-12-21 16:00:00:00", "2017-12-21 22:30:00:00"))

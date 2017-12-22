@@ -1,0 +1,18 @@
+{
+
+  "key" : "ETHERSCAN_API_KEY_HERE",
+
+
+
+  "database":{
+    "dbuser":"user",
+    "dbpassword":"pass",
+    "dbname":"wallet",
+    "dbhost":"localhost"
+  },
+
+  "plotly":{
+        "username":"PLOTLY_USERNAME_HERE",
+        "key":"PLOTLY_KEY_HERE"
+    }
+}

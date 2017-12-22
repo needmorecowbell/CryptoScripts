@@ -35,7 +35,7 @@ class BalanceLogger():
     def __loadFiles(self):
         """Loads data from config.json, tokens.json, and addresses.json
         """
-        with open('config/config.json', mode='r') as key_file:#load all config options
+        with open('../config/config.json', mode='r') as key_file:#load all config options
             config= json.load(key_file)
 
             self.key = config['key']
@@ -46,10 +46,10 @@ class BalanceLogger():
             self.dbHost= database_info['dbhost']
             self.dbName= database_info['dbname']
 
-        with open('config/tokens.json', mode='r') as token_file:#load all token options
+        with open('../config/tokens.json', mode='r') as token_file:#load all token options
             self.tokens = json.load(token_file)['token']
 
-        with open('config/addresses.json', mode='r') as addr_file:#load all addresses
+        with open('../config/addresses.json', mode='r') as addr_file:#load all addresses
             address_data= json.load(addr_file)
             self.eth_addr= address_data['eth']
             self.btc_address= address_data['btc']
