@@ -2,5 +2,9 @@
 balanceLogger/config/addresses.json
 balanceLogger/config/config.json
 
+#Crypto Analyzer #
+cryptoAnalyzer/config/addresses.json
+cryptoAnalyzer/config/config.json
+
 #Always remove these files #
 *.db

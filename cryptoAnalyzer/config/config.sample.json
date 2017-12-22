@@ -1,0 +1,12 @@
+{
+  "plotly":{
+    "username":"username",
+    "key":"PLOTLY_KEY_HERE"
+  },
+ "database":{
+        "dbuser":"user",
+        "dbpassword":"pass",
+        "dbname":"wallet",
+        "dbhost":"localhost"
+    }
+}

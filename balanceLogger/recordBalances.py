@@ -61,7 +61,7 @@ class BalanceLogger():
         """
         # DB
         #print("[+] Inserting into db "+self.dbName+"...\n")
-        timestamp="{:%c}".format(datetime.now())
+        timestamp= str(datetime.now())
 
         query= "INSERT INTO balances VALUES (null, '"+crypto+"', '"+address+"', '"+str(balance)+"', '"+str(fiatBalance) +"', '"+timestamp+"');"
         db=_mysql.connect(host=self.dbHost, user=self.dbUser, passwd=self.dbPass, db=self.dbName)
