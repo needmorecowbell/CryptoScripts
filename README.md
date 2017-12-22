@@ -11,6 +11,7 @@ Balance Logger calls various crypto apis/websites to get the balances of all you
 *To Do*
   * Add more contract addresses so people don't have to manually
 
+
 -------
 
 ## Crypto Analyzer
