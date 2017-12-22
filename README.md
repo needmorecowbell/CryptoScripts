@@ -9,10 +9,18 @@ Balance Logger calls various crypto apis/websites to get the balances of all you
 
 
 *To Do*
-  * Send information to database
   * Add more contract addresses so people don't have to manually
 
 -------
+
+## Crypto Analyzer
+
+Crypto Analyzer takes information from the Balance Logger, and provides graphs of the information on plotly.
+
+*To Do*
+  * Make more functions that provide graphs in plotly
+-------
+
 ## Crypto Logger
 This program scrapes crypto data using the coinmarketcap api, then sends it to a mysql database.
 
