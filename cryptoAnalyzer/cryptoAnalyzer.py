@@ -25,6 +25,8 @@ class CryptoAnalyzer():
     __dbName= ""
     __plotlyUsername= ""
     __plotlyKey = ""
+    
+    isOnline= False
 
     def __loadFiles(self):
         """Loads data from config.json
@@ -105,20 +107,26 @@ class CryptoAnalyzer():
 
         fig = go.Figure(data= data, layout = layout)
         filename=str(datetime.datetime.now().strftime('%m-%d-%Y_%H-%M'))
-        py.iplot(fig, filename=str(filename+"_"+cryptoName))
+        if(self.isOnline):
+            result = py.iplot(fig, filename=str(filename+"_"+cryptoName))
+        
+        else:
+            result = plotly.offline.plot(fig, filename=str(filename+"_"+cryptoName+".html"))
 
         db.commit();
         db.close();
-        return ""
+        return result 
 
 
 
     def getTotalFiat(self):
         pass#return self.total_in_fiat
 
-    def __init__(self):
+    def __init__(self, online= False):
         self.__loadFiles()
-        plotly.tools.set_credentials_file(username=self.__plotlyUsername, api_key=self.__plotlyKey)
+        self.isOnline= online
+        if (self.isOnline):
+            plotly.tools.set_credentials_file(username=self.__plotlyUsername, api_key=self.__plotlyKey)
 
 
 
@@ -129,3 +137,14 @@ if __name__ == "__main__":
     print(c.getAmountInRange("ethereum","2017-12-21 16:00:00:00", "2017-12-23 22:30:00:00"))
     print(c.getAmountInRange("omisego","2017-12-21 16:00:00:00", "2017-12-23 22:30:00:00"))
     print(c.getAmountInRange("bitcoin","2017-12-21 16:00:00:00", "2017-12-23 22:30:00:00"))
+    print(c.getAmountInRange("unikoin-gold","2017-12-21 16:00:00:00", "2017-12-23 22:30:00:00"))
+    print(c.getAmountInRange("basic-attention-token","2017-12-21 16:00:00:00", "2017-12-23 22:30:00:00"))
+    print(c.getAmountInRange("neo","2017-12-21 16:00:00:00", "2017-12-23 22:30:00:00"))
+
+
+
+
+
+
+
+

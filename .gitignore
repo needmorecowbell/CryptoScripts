@@ -2,5 +2,8 @@
 config/addresses.json
 config/config.json
 
+#Ignore Any offline graphs #
+cryptoAnalyzer/*.html
+
 #Always remove these files #
 *.db
