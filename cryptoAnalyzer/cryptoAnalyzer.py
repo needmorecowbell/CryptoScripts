@@ -16,6 +16,8 @@ import numpy as np
 import plotly.plotly as py
 import plotly.graph_objs as go
 import plotly
+import threading
+
 
 class CryptoAnalyzer():
     """Creates graphs and spots trends of various crypto's using retrieved data from balanceLogger """
@@ -49,16 +51,11 @@ class CryptoAnalyzer():
         epoch =  datetime.datetime.utcfromtimestamp(0)
         return (dt - epoch).total_seconds() * 1000
 
-
-
-    def getAmountInRange(self, cryptoName, lowLimDate, upLimDate):
-        """Creates graphs of amount of crypto in fiat over time,saves to plotly account """
-
-        #query= 'SELECT amount_usd, insertedTime FROM balances WHERE crypto = "'+cryptoName+'" ORDER BY id ASC;'
+    def _queryWorker(self, cryptoName, lowLimDate, upLimDate, data):
         query= 'SELECT amount_usd, insertedTime FROM balances WHERE crypto="'+cryptoName+'" AND  insertedTime BETWEEN "'+lowLimDate+'" AND "'+upLimDate+'";'
 
         db=_mysql.connect(host=self.__dbHost, user=self.__dbUser, passwd=self.__dbPass, db=self.__dbName)
-
+        print("Querying "+cryptoName)
         db.query(query)
         queryResult= db.store_result()
         num_rows=queryResult.num_rows()
@@ -84,17 +81,66 @@ class CryptoAnalyzer():
             time.append(datetime.datetime(year=entry_year, month = entry_month, day= entry_day, hour= entry_hour, minute= entry_minute ))
             amount.append(float(fetched["amount_usd"]))
 
+            data.append(go.Scatter(x= time,y= amount, name=cryptoName))
             sleep(1)
 
+        db.commit();
+        db.close();
+
+
+    def getAmountInRange(self, cryptoNames, lowLimDate, upLimDate):
+        """Creates graphs of amount of crypto in fiat over time,saves to plotly account """
+
+        #query= 'SELECT amount_usd, insertedTime FROM balances WHERE crypto = "'+cryptoName+'" ORDER BY id ASC;'
 
         data= []
+        threads= []
+ 
+        for cryptoName in cryptoNames:
+            t = threading.Thread(target=self._queryWorker, args=(cryptoName, lowLimDate, upLimDate, data))
+            threads.append(t)
+            t.start()
 
-        data.append(go.Scatter(x= time,y= amount))
+        for thread in threads:
+            thread.join()
 
-        layout = go.Layout(title=cryptoName+" Balance Over Time",
+
+
+        timestamp_split= str(lowLimDate).split()
+        date_split = timestamp_split[0].split("-")
+        time_split = timestamp_split[1].split(":")
+
+        entry_year=int(date_split[0])
+        entry_month= int(date_split[1])
+        entry_day= int( date_split[2])
+        entry_hour=int(time_split[0])
+        entry_minute=int(time_split[1])
+
+
+        minTime= datetime.datetime(year=entry_year, month = entry_month, day= entry_day, hour= entry_hour, minute= entry_minute )
+        
+        timestamp_split= str(upLimDate).split()
+        date_split = timestamp_split[0].split("-")
+        time_split = timestamp_split[1].split(":")
+
+        entry_year=int(date_split[0])
+        entry_month= int(date_split[1])
+        entry_day= int( date_split[2])
+        entry_hour=int(time_split[0])
+        entry_minute=int(time_split[1])
+
+
+       
+        maxTime= datetime.datetime(year=entry_year, month = entry_month, day= entry_day, hour= entry_hour, minute= entry_minute )
+
+
+
+        print("Threads complete")
+        print("Plotting...")
+        layout = go.Layout( title="Portfolio Balance Over Time",
                             xaxis = dict(
-                                range = [self.__toUnixTime(time[0]),
-                                        self.__toUnixTime(time[-1])],
+                                range = [self.__toUnixTime(minTime),
+                                        self.__toUnixTime(maxTime)],
                                 title= "Time",
                                 type=  "date"
 
@@ -108,13 +154,11 @@ class CryptoAnalyzer():
         fig = go.Figure(data= data, layout = layout)
         filename=str(datetime.datetime.now().strftime('%m-%d-%Y_%H-%M'))
         if(self.isOnline):
-            result = py.iplot(fig, filename=str(filename+"_"+cryptoName))
+            result = py.iplot(fig, filename=str(filename+"_portfolio_balances"))
         
         else:
-            result = plotly.offline.plot(fig, filename=str(filename+"_"+cryptoName+".html"))
+            result = plotly.offline.plot(fig, filename=str(filename+"_portfolio_balances.html"))
 
-        db.commit();
-        db.close();
         return result 
 
 
@@ -134,12 +178,9 @@ class CryptoAnalyzer():
 
 if __name__ == "__main__":
     c = CryptoAnalyzer()
-    print(c.getAmountInRange("ethereum","2017-12-21 16:00:00:00", "2017-12-23 22:30:00:00"))
-    print(c.getAmountInRange("omisego","2017-12-21 16:00:00:00", "2017-12-23 22:30:00:00"))
-    print(c.getAmountInRange("bitcoin","2017-12-21 16:00:00:00", "2017-12-23 22:30:00:00"))
-    print(c.getAmountInRange("unikoin-gold","2017-12-21 16:00:00:00", "2017-12-23 22:30:00:00"))
-    print(c.getAmountInRange("basic-attention-token","2017-12-21 16:00:00:00", "2017-12-23 22:30:00:00"))
-    print(c.getAmountInRange("neo","2017-12-21 16:00:00:00", "2017-12-23 22:30:00:00"))
+    cryptos= ['ethereum', 'bitcoin', 'omisego','unikoin-gold','basic-attention-token', 'neo','xenon','viuly' ]
+
+    print(c.getAmountInRange(cryptos,"2017-12-21 16:00:00:00", "2017-12-25 22:30:00:00"))
 
 
 
