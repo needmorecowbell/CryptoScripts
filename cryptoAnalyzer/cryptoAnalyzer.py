@@ -64,6 +64,7 @@ class CryptoAnalyzer():
         time=[]
         for x in range(0,num_rows) :
             fetched= queryResult.fetch_row(how=1)[0]
+            print("Worker["+cryptoName+"]"+str(x)+"/"+str(num_rows))
 
 
 
@@ -81,8 +82,8 @@ class CryptoAnalyzer():
             time.append(datetime.datetime(year=entry_year, month = entry_month, day= entry_day, hour= entry_hour, minute= entry_minute ))
             amount.append(float(fetched["amount_usd"]))
 
-            data.append(go.Scatter(x= time,y= amount, name=cryptoName))
-            sleep(1)
+        data.append(go.Scatter(x= time,y= amount, name=cryptoName))
+       
 
         db.commit();
         db.close();
@@ -150,7 +151,7 @@ class CryptoAnalyzer():
                             )
 
         )
-
+        print(len(data))
         fig = go.Figure(data= data, layout = layout)
         filename=str(datetime.datetime.now().strftime('%m-%d-%Y_%H-%M'))
         if(self.isOnline):
@@ -180,7 +181,7 @@ if __name__ == "__main__":
     c = CryptoAnalyzer()
     cryptos= ['ethereum', 'bitcoin', 'omisego','unikoin-gold','basic-attention-token', 'neo','xenon','viuly' ]
 
-    print(c.getAmountInRange(cryptos,"2017-12-21 16:00:00:00", "2017-12-25 22:30:00:00"))
+    print(c.getAmountInRange(cryptos,"2017-12-22 1:00:00:00", "2017-12-24 23:00:00:00"))
 
 
 
