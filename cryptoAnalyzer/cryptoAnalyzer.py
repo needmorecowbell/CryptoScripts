@@ -64,7 +64,7 @@ class CryptoAnalyzer():
         time=[]
         for x in range(0,num_rows) :
             fetched= queryResult.fetch_row(how=1)[0]
-            print("Worker["+cryptoName+"]"+str(x)+"/"+str(num_rows))
+            print("Worker["+cryptoName+"]"+str(x)+"/"+str(num_rows-1))
 
 
 
@@ -151,7 +151,6 @@ class CryptoAnalyzer():
                             )
 
         )
-        print(len(data))
         fig = go.Figure(data= data, layout = layout)
         filename=str(datetime.datetime.now().strftime('%m-%d-%Y_%H-%M'))
         if(self.isOnline):
@@ -181,7 +180,7 @@ if __name__ == "__main__":
     c = CryptoAnalyzer()
     cryptos= ['ethereum', 'bitcoin', 'omisego','unikoin-gold','basic-attention-token', 'neo','xenon','viuly' ]
 
-    print(c.getAmountInRange(cryptos,"2017-12-22 1:00:00:00", "2017-12-24 23:00:00:00"))
+    print(c.getAmountInRange(cryptos,"2017-12-20 1:00:00:00", "2017-12-25 23:00:00:00"))
 
 
 
