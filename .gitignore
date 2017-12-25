@@ -5,5 +5,8 @@ config/config.json
 #Ignore Any offline graphs #
 cryptoAnalyzer/*.html
 
+#Ignore these folders #
+balanceLogger/__pycache__
+
 #Always remove these files #
 *.db
