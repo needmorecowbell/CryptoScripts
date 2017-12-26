@@ -16,7 +16,9 @@ Balance Logger calls various crypto apis/websites to get the balances of all you
 
 ## Crypto Analyzer
 
-Crypto Analyzer takes information from the Balance Logger, and provides graphs of the information on plotly.
+Crypto Analyzer takes information from the Balance Logger, and provides graphs of the information on plotly in online mode, or locally in offline mode.
+
+**NOTE:** You do not need to fill in the config settings for plotly unless you are using online mode. 
 
 *To Do*
   * Make more functions that provide graphs in plotly
@@ -32,3 +34,4 @@ This program scrapes crypto data using the coinmarketcap api, then sends it to a
   * Config file for choice in currency logging
   * Decide whether it should be a script that runs on cron, or does scheduling by itself
 ------
+
